@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>#7 How Can We Measure Energy in Food? – Interactive Lab</title>
+<style>
+:root{
+  --paper:#f2f5f4; --card:#ffffff; --ink:#14232b; --muted:#4c6170; --line:#cfd9de;
+  --bench:#1d3948; --bench2:#2b5167; --flame:#f0541e; --water:#2b8fd6;
+  --good:#1b7f45; --goodbg:#e4f5ea; --bad:#b3261e; --badbg:#fde8e6; --hint:#7a4b00; --hintbg:#fff3d1;
+  --focus:#0b6bcb;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 "Avenir Next","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+h1,h2,h3,h4{line-height:1.2;margin:0 0 .5em}
+h1{font-size:1.5rem}h2{font-size:1.45rem}h3{font-size:1.15rem}h4{font-size:1rem}
+p{margin:.4em 0 .8em}
+a{color:var(--focus)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+header.top{background:var(--bench);color:#fff;padding:14px 20px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
+header.top h1{margin:0;font-size:1.25rem;font-weight:700}
+header.top small{display:block;opacity:.8;font-weight:400;font-size:.8rem}
+.meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.meta label{font-size:.8rem;opacity:.9}
+.meta input[type=text]{padding:5px 8px;border-radius:6px;border:1px solid #6d8797;background:#fff;color:var(--ink);width:150px}
+.meta input.hr{width:70px}
+nav#nav{display:flex;flex-wrap:wrap;gap:4px;padding:10px 20px;background:var(--bench2);position:sticky;top:0;z-index:5}
+nav#nav button{border:0;background:transparent;color:#d6e3ea;padding:7px 14px;border-radius:6px;cursor:pointer;font-weight:600}
+nav#nav button.cur{background:#fff;color:var(--bench)}
+nav#nav button.done::after{content:" ✓";color:#7fe0a3}
+nav#nav button.cur.done::after{color:var(--good)}
+nav#nav button:disabled{opacity:.4;cursor:not-allowed}
+main{max-width:1100px;margin:0 auto;padding:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:0 0 18px}
+.card.plain{border-left:5px solid var(--bench2)}
+.lead{font-size:1.05rem;max-width:70ch}
+.dq{list-style:none;padding:0;margin:0}
+.dq li{padding:10px 14px;border-left:5px solid var(--flame);background:#fff7f3;margin:8px 0;border-radius:0 8px 8px 0;font-weight:600}
+.btn{display:inline-block;border:0;background:var(--bench);color:#fff;padding:9px 18px;border-radius:8px;cursor:pointer;font-weight:700}
+.btn:hover:not(:disabled){background:var(--bench2)}
+.btn.go{background:var(--flame)}
+.btn.go:hover:not(:disabled){background:#d8430e}
+.btn.alt{background:#fff;color:var(--bench);border:2px solid var(--bench)}
+.btn.sm{padding:5px 11px;font-size:.88rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.msg{padding:9px 12px;border-radius:8px;margin:8px 0;font-size:.95rem}
+.msg.ok{background:var(--goodbg);color:var(--good)}
+.msg.bad{background:var(--badbg);color:var(--bad)}
+.msg.hint{background:var(--hintbg);color:var(--hint)}
+.msg.info{background:#e8f1f8;color:#164766}
+.ok{color:var(--good);font-weight:700}.bad{color:var(--bad)}
+table.t{border-collapse:collapse;width:100%;font-size:.93rem;background:#fff}
+table.t th,table.t td{border:1px solid #9fb0ba;padding:6px 8px;text-align:center;vertical-align:middle}
+table.t th{background:#e5edf1;font-size:.85rem}
+table.t td.l,table.t th.l{text-align:left}
+.scroll{overflow-x:auto}
+table.t input,table.t select{width:80px;padding:4px 6px;border:1px solid #8aa0ad;border-radius:5px;text-align:center}
+table.t input.good,table.t select.good{border-color:var(--good);background:var(--goodbg)}
+table.t input.badv{border-color:var(--bad);background:var(--badbg)}
+.mark{display:block;font-size:.75rem;min-height:1em;color:var(--bad)}
+.mark.ok{color:var(--good)}
+/* nutrition label */
+.nf{border:2px solid #000;background:#fff;padding:6px 8px;font:13px/1.25 "Helvetica Neue",Arial,sans-serif;color:#000;width:100%;max-width:230px}
+.nf h4{font:900 1.5rem/1 "Helvetica Neue",Arial,sans-serif;margin:0 0 2px;border-bottom:1px solid #000;padding-bottom:3px}
+.nf .r{display:flex;justify-content:space-between;border-top:1px solid #000;padding:2px 0}
+.nf .r.sub{padding-left:14px;border-top:1px solid #bbb}
+.nf .cal{display:flex;justify-content:space-between;align-items:flex-end;border-top:7px solid #000;border-bottom:4px solid #000;padding:2px 0}
+.nf .cal b{font-size:1.9rem;line-height:1}
+.nf .sv{border-bottom:7px solid #000;padding-bottom:3px;margin-bottom:2px}
+.nf .un{font-size:.7rem;color:#c00;margin-top:4px}
+.lblcard{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.lblcard .nm{font-weight:700}
+/* lab */
+.stage{display:grid;grid-template-columns:minmax(300px,520px) 1fr;gap:18px;align-items:start}
+.stage>*{min-width:0}
+@media(max-width:860px){.stage{grid-template-columns:minmax(0,1fr)}.bench{position:static}nav#nav{position:static}}
+.bench{background:
+  linear-gradient(#dbe6ea 1px,transparent 1px) 0 0/20px 20px,
+  linear-gradient(90deg,#dbe6ea 1px,transparent 1px) 0 0/20px 20px,#f9fcfd;
+  border:2px solid var(--bench2);border-radius:10px;padding:6px;position:sticky;top:60px}
+.bench svg{width:100%;height:auto;display:block}
+.erow{margin:12px 0}
+.erow label{display:block;font-weight:600;margin-bottom:4px}
+.ein{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ein input[type=text]{width:130px;padding:7px 9px;border:2px solid #8aa0ad;border-radius:7px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1rem}
+.ein input[type=text]:disabled{background:var(--goodbg);border-color:var(--good);color:var(--good)}
+.unit{color:var(--muted)}
+.formula{background:#eef3f5;border-left:4px solid var(--bench2);padding:8px 12px;border-radius:0 8px 8px 0;font-size:.95rem;margin:8px 0}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{border:2px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;min-width:150px}
+.chip:hover{border-color:var(--bench2)}
+.chip.done{border-color:var(--good);background:var(--goodbg)}
+.chip .em{font-size:1.5rem}
+.bar{height:16px;background:#e0e8ec;border-radius:8px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--flame)}
+.bars{display:grid;grid-template-columns:130px 1fr 90px;gap:6px 10px;align-items:center;font-size:.9rem}
+.bars .lab{background:#fff;border:1px dashed #8aa0ad}
+.bars .lab>i{background:#8aa0ad}
+textarea.ans{width:100%;min-height:110px;padding:10px;border:2px solid #8aa0ad;border-radius:8px;resize:vertical}
+.q{font-weight:600}
+.badge{display:inline-block;background:var(--bench);color:#fff;border-radius:999px;padding:2px 11px;font-size:.8rem;font-weight:700;margin-right:6px}
+.opt{display:block;width:100%;text-align:left;margin:6px 0;padding:9px 12px;border:2px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+.opt.sel{border-color:var(--bench2)}
+.opt.right{border-color:var(--good);background:var(--goodbg)}
+.opt.wrong{border-color:var(--bad);background:var(--badbg)}
+.toggle{display:flex;gap:10px;align-items:center;padding:10px 14px;border:2px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;width:100%;text-align:left}
+.toggle.on{border-color:var(--good);background:var(--goodbg)}
+.keybox{border:3px dashed #7a4b00;background:#fffaf0}
+.modal{position:fixed;inset:0;background:rgba(10,20,26,.6);z-index:20;overflow:auto;padding:20px}
+.modal .inner{background:#fff;max-width:1000px;margin:0 auto;border-radius:12px;padding:20px 24px}
+.small{font-size:.85rem;color:var(--muted)}
+footer{max-width:1100px;margin:0 auto;padding:6px 20px 40px;color:var(--muted);font-size:.85rem}
+#report{display:none}
+@keyframes flick{0%,100%{transform:scale(1,1)}30%{transform:scale(.9,1.12)}60%{transform:scale(1.07,.93)}}
+#flame{transform-origin:0 0;animation:flick .35s infinite}
+@media (prefers-reduced-motion:reduce){#flame{animation:none}html{scroll-behavior:auto}}
+@media print{
+  #app,.modal{display:none!important}
+  #report{display:block;font-size:11pt;color:#000}
+  #report table{border-collapse:collapse;width:100%;margin:6px 0 14px}
+  #report th,#report td{border:1px solid #444;padding:3px 5px;font-size:9.5pt;text-align:center}
+  #report h2{font-size:14pt;margin:14px 0 4px}
+  #report .ansbox{white-space:pre-wrap;border:1px solid #888;padding:6px;margin:3px 0 10px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+<header class="top">
+  <h1>#7 How Can We Measure Energy in Food?<small>Interactive calorimetry lab</small></h1>
+  <div class="meta">
+    <label for="nm">Name</label><input type="text" id="nm" data-in="meta|name" autocomplete="off">
+    <label for="hr">Hour</label><input type="text" id="hr" class="hr" data-in="meta|hour" autocomplete="off">
+    <button class="btn sm alt" data-act="save" title="Download your progress as a file">Save progress</button>
+    <button class="btn sm alt" data-act="load" title="Load a saved progress file">Load progress</button>
+    <input type="file" id="loadfile" accept=".json,application/json" style="display:none">
+    <button class="btn sm go" data-act="key">Teacher answer key</button>
+  </div>
+</header>
+<nav id="nav" aria-label="Lab steps"></nav>
+<main id="main"></main>
+<footer>This page runs entirely in your browser. It uses no AI, no accounts, and sends nothing anywhere. Your work is <b>not</b> saved if you close the tab, so use “Save progress” if you need to stop early.<br>Standards: SEP 6 (Constructing Explanations) · NGSS LS 1-6 (Energy in Macromolecules) · Crosscutting concept: Energy and Matter.</footer>
+</div>
+<div id="report"></div>
+<div id="keyroot"></div>
+<script>
+'use strict';
+const TEACHER_BUILD = true;
+
+/* =====================  DATA (from the nutrition-label photos)  ===================== */
+// use:false removes a food from the lab (the worksheet tables have 7 rows).
+// burn / eff are SIMULATION assumptions (not on the labels): burn = share of the piece that burns away,
+// eff = how well that food's energy reaches the water relative to the others.
+const FOODS = [
+ {id:'cheezit', name:'Cheez-It crackers', emoji:'🧀', use:true,  serv:'27 crackers', g:30, cal:150, fat:8,  sat:1.5, sodium:230, carb:17, fiber:'<1', sugars:0, protein:3, burn:.82, eff:.95, color:'#e0a030'},
+ {id:'pretzel', name:'Pretzels',          emoji:'🥨', use:true,  serv:'22 pretzels', g:28, cal:120, fat:1,  sat:0,   sodium:null, carb:24, fiber:null, sugars:null, protein:3, burn:.85, eff:.97, color:'#9a5a2b', uncertain:true},
+ {id:'cheetos', name:'Cheetos',           emoji:'🧡', use:true,  serv:'About 21 pieces', g:28, cal:160, fat:10, sat:1.5, sodium:250, carb:15, fiber:'<1', sugars:'<1', protein:2, burn:.88, eff:1.0, color:'#f08a1c'},
+ {id:'popcorn', name:'Popcorn',           emoji:'🍿', use:true,  serv:'About 3¾ cups', g:28, cal:130, fat:10, sat:1.5, sodium:230, carb:11, fiber:2, sugars:0, protein:2, burn:.90, eff:.95, color:'#f3e3b0'},
+ {id:'pringles',name:'Pringles',          emoji:'🥔', use:true,  serv:'About 15 crisps', g:28, cal:150, fat:9, sat:2.5, sodium:150, carb:16, fiber:'<1', sugars:0, protein:1, burn:.85, eff:.97, color:'#d9a441'},
+ {id:'doritos', name:'Doritos',           emoji:'🔺', use:true,  serv:'About 12 chips', g:28, cal:150, fat:8, sat:1, sodium:190, carb:18, fiber:1, sugars:'<1', protein:2, burn:.80, eff:.93, color:'#d9622b'},
+ {id:'meat',    name:'Meat stick',        emoji:'🥩', use:true,  serv:'1 stick', g:28, cal:120, fat:9, sat:4, sodium:420, carb:1, fiber:null, sugars:0, protein:6, burn:.55, eff:.80, color:'#7a3022', uncertain:true},
+ {id:'fruit',   name:'Fruit snacks',      emoji:'🍬', use:false, serv:'4 pieces', g:28, cal:90, fat:0, sat:0, sodium:15, carb:23, fiber:null, sugars:17, protein:1, burn:.70, eff:.85, color:'#5aa7e0'}
+];
+const LAB = FOODS.filter(f=>f.use);
+const foodById = id => FOODS.find(f=>f.id===id);
+
+/* =====================  SIMULATION MODEL  ===================== */
+const WATER = 50, SPECIFIC_HEAT = 1, BASE_MASS = 28.47, ETA0 = 0.40;
+const IDEAL = {height:12, spacer:true, shield:true, size:0.5};
+const r1=x=>Math.round(x*10)/10, r2=x=>Math.round(x*100)/100;
+const labelCalPerG = f => f.cal/f.g*1000;
+const heightFactor = h => h<=14 ? 1 : Math.max(.45, 1-.045*(h-14));
+function etaFor(f,o){ let e=ETA0*f.eff*heightFactor(o.height); if(!o.shield) e*=.62; if(o.height<10) e*=.8; return e; }
+function burnFrac(f,o){ let b=f.burn; if(!o.spacer) b*=.7; if(o.height<10) b*=.8; return b; }
+function runModel(f,o,jit){
+  const burned=o.size*burnFrac(f,o);
+  const Q=burned*labelCalPerG(f)*etaFor(f,o)*jit;
+  return {burned,Q,dT:Q/WATER,initMass:r2(BASE_MASS+o.size),finalMass:r2(BASE_MASS+o.size-burned)};
+}
+// What a student should measure with ideal technique (no random jitter)
+const idealCalPerG = f => labelCalPerG(f)*etaFor(f,IDEAL);
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+/* =====================  HELPERS  ===================== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=(x,d=2)=>Number(x).toFixed(d);
+const fatShare = f => f.fat/f.g;                 // grams of lipid per gram of serving
+function rankMap(items, keyFn){ // 1 = highest
+  const s=[...items].sort((a,b)=>keyFn(b)-keyFn(a)); const m={}; s.forEach((it,i)=>m[it.id]=i+1); return m; }
+function spearman(a,b){ const n=a.length; if(n<2) return 0; let d=0; for(let i=0;i<n;i++) d+=(a[i]-b[i])**2; return 1-6*d/(n*(n*n-1)); }
+
+/* =====================  STATE  ===================== */
+const STEPS=[['intro','1 Overview'],['predict','2 Predict'],['safety','3 Safety'],['lab','4 Lab'],['results','5 Results'],['analysis','6 Analysis'],['submit','7 Submit']];
+function newState(){
+  return {name:'',hour:'',seed:Math.floor(Math.random()*1e9),rngN:0,step:'intro',
+    pred:Object.fromEntries(LAB.map(f=>[f.id,{carb:'',lipid:'',protein:'',rank:''}])),predOK:{},predLocked:false,predFB:'',hintN:0,
+    safety:{goggles:false,hair:false,q:{},done:false},
+    trials:{},cur:null,res:{rank:{},done:false},
+    ans:{claim:'',q1:'',q2:'',q3c:'',q3:'',q4:''}};
+}
+let S=newState();
+function rnd(){ S.rngN++; return mulberry32(S.seed+S.rngN*7919)(); }
+const labDone=()=>LAB.every(f=>S.trials[f.id]);
+const trialList=()=>LAB.filter(f=>S.trials[f.id]);
+function unlocked(id){
+  if(TEACHER_BUILD) return true;
+  switch(id){case 'intro':case 'predict':return true;case 'safety':return S.predLocked;
+    case 'lab':return S.predLocked&&S.safety.done;case 'results':return labDone();
+    case 'analysis':case 'submit':return S.res.done;} return false; }
+function stepDone(id){
+  return {intro:false,predict:S.predLocked,safety:S.safety.done,lab:labDone(),results:S.res.done,analysis:!!(S.ans.claim&&S.ans.q1&&S.ans.q2&&S.ans.q3&&S.ans.q4),submit:false}[id]; }
+function measured(f){ const t=S.trials[f.id]; return t?t.vals:null; }
+function resultsSorted(){ return trialList().map(f=>({f,calg:S.trials[f.id].vals.calg,kcalg:S.trials[f.id].vals.kcalg})).sort((a,b)=>b.kcalg-a.kcalg); }
+function actualRanks(){ const m={}; resultsSorted().forEach((r,i)=>m[r.f.id]=i+1); return m; }
+
+/* ===== Nutrition label card ===== */
+function labelCard(f){
+  const row=(a,b,sub)=>`<div class="r${sub?' sub':''}"><span>${a}</span><span>${b}</span></div>`;
+  return `<div class="lblcard"><div class="nm">${f.emoji} ${esc(f.name)}</div><div class="nf">
+   <h4>Nutrition Facts</h4>
+   <div class="sv"><div>Serving size</div><div><b>${esc(f.serv)} (${f.g}g)</b></div></div>
+   <div class="cal"><span><small>Amount per serving</small><br><b>Calories</b></span><b>${f.cal}</b></div>
+   ${row('<b>Total Fat</b> '+f.fat+'g','')}
+   ${f.sat!=null?row('Saturated Fat '+f.sat+'g','',1):''}
+   ${f.sodium!=null?row('<b>Sodium</b> '+f.sodium+'mg',''):''}
+   ${row('<b>Total Carbohydrate</b> '+f.carb+'g','')}
+   ${f.fiber!=null?row('Dietary Fiber '+f.fiber+'g','',1):''}
+   ${f.sugars!=null?row('Total Sugars '+f.sugars+'g','',1):''}
+   ${row('<b>Protein</b> '+f.protein+'g','')}
+  </div></div>`;
+}
+
+/* =====================  NAV / RENDER  ===================== */
+function renderNav(){
+  $('#nav').innerHTML=STEPS.map(([id,l])=>`<button data-act="nav" data-arg="${id}" class="${S.step===id?'cur':''} ${stepDone(id)?'done':''}" ${unlocked(id)?'':'disabled'}>${l}</button>`).join('');
+  $('#nm').value=S.name; $('#hr').value=S.hour;
+}
+function render(keep){
+  stopTick();
+  renderNav();
+  const v={intro:viewIntro,predict:viewPredict,safety:viewSafety,lab:viewLab,results:viewResults,analysis:viewAnalysis,submit:viewSubmit}[S.step]();
+  $('#main').innerHTML=v;
+  if(S.step==='predict') updatePredUI();
+  if(S.step==='lab'&&S.cur){ drawScene(); if(S.cur.bs==='burning'||S.cur.bs==='out') startTick(); }
+  if(!keep) window.scrollTo({top:0});
+}
+function go(step){ S.step=step; render(); }
+
+/* =====================  1. OVERVIEW  ===================== */
+function viewIntro(){
+  return `
+  <div class="card">
+    <h2>#7 How Can We Measure Energy in Food?</h2>
+    <p class="lead">A lot of energy is stored in the bonds between carbon and hydrogen atoms in biomolecules such as carbohydrates, lipids, and proteins. You may not realize this, but <b>the more carbon-hydrogen bonds there are in a molecule, then the more energy there will be in that molecule when those carbon-hydrogen bonds are broken.</b> However, our bodies can metabolize or access the energy in carbohydrates much easier than it can in the other biomolecules, so that is why our bodies prefer it as an energy source.</p>
+    <h3>Driving Questions</h3>
+    <ul class="dq"><li>💡 How can we measure and compare the calories in various foods in the lab?</li>
+    <li>💡 What predictions can be made when looking at food labels and calorie content?</li></ul>
+  </div>
+  <div class="card">
+    <h3>Look closer: counting carbon-hydrogen (C–H) bonds</h3>
+    <div class="grid g2">
+      <div><svg viewBox="0 0 300 120" width="100%" role="img" aria-label="Glucose ring with 7 carbon-hydrogen bonds">
+        <polygon points="110,20 160,20 185,60 160,100 110,100 85,60" fill="#fff7e8" stroke="#8a6d3b" stroke-width="3"/>
+        <text x="148" y="66" font-size="14" fill="#8a6d3b">glucose</text>
+        <text x="20" y="112" font-size="13" fill="#14232b">6 carbons, only 7 C–H bonds</text></svg>
+        <p class="small">Glucose (a carbohydrate) is already partly “oxidized”: many of its carbons are attached to oxygen.</p></div>
+      <div><svg viewBox="0 0 300 120" width="100%" role="img" aria-label="Fatty acid chain with many carbon-hydrogen bonds">
+        <polyline points="10,70 40,45 70,70 100,45 130,70 160,45 190,70 220,45 250,70" fill="none" stroke="#c2410c" stroke-width="3"/>
+        <g stroke="#c2410c" stroke-width="2"><line x1="40" y1="45" x2="40" y2="25"/><line x1="100" y1="45" x2="100" y2="25"/><line x1="160" y1="45" x2="160" y2="25"/><line x1="220" y1="45" x2="220" y2="25"/>
+        <line x1="70" y1="70" x2="70" y2="92"/><line x1="130" y1="70" x2="130" y2="92"/><line x1="190" y1="70" x2="190" y2="92"/></g>
+        <text x="20" y="114" font-size="13" fill="#14232b">16 carbons, 31 C–H bonds (palmitic acid)</text></svg>
+        <p class="small">A fatty acid (part of a lipid) is a long chain of carbons loaded with hydrogens.</p></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>What you will do</h3>
+    <ol>
+      <li><b>Predict.</b> Read nutrition labels, fill in Table #1, and rank the foods by how much energy you think is stored in each gram.</li>
+      <li><b>Safety.</b> Set up your protective gear and answer three safety checks.</li>
+      <li><b>Run the lab.</b> Burn each food in a calorimeter, make your own choices about the setup, and collect data in Table #2.</li>
+      <li><b>Calculate</b> calories and kilocalories per gram for each food (Table #3) and compare to your prediction.</li>
+      <li><b>Analyze</b> your results and submit your answers.</li>
+    </ol>
+    <div class="msg hint">🚫 <b>AI Usage Level 0 (RED):</b> this assignment must be completed without any artificial intelligence tools or assistance. Nothing on this page uses AI.</div>
+    <p>You will work with your pride group to run the real lab, but <b>each student submits their own individual responses</b> to the analysis questions. If you were absent, use this simulation (or your class stock data) to complete the analysis.</p>
+    <button class="btn go" data-act="nav" data-arg="predict">Start with the prediction</button>
+  </div>`;
+}
+
+/* =====================  2. PREDICT  ===================== */
+const PRED_HINTS=[
+ 'Remember: the total calories listed does not mean the food has the most energy, because serving sizes vary. What could you compare instead of calories per serving?',
+ 'Energy is stored in carbon-hydrogen bonds. Which biomolecule (carbohydrate, lipid, or protein) has the most of them? Then ask: which foods have the most of that biomolecule <i>for every gram of food</i>?',
+ 'Try this: divide the grams of lipid by the serving size in grams for each food. A bigger number means more lipid in every gram.'
+];
+function viewPredict(){
+  const allOK=LAB.every(f=>['carb','lipid','protein'].every(k=>S.predOK[f.id+k]));
+  const L=S.predLocked;
+  return `
+  <div class="card">
+    <h2>Prediction</h2>
+    <p class="lead">Look at the nutrition labels for the foods you are going to investigate, paying particular attention to the amount of each macromolecule. Complete Table #1, then, using your <b>knowledge of biomolecules and the information above</b>, rank the foods, with 1 being the highest, in order of most amount of energy stored. Remember, the total amount of calories listed does not mean it has the most energy, as serving sizes vary!</p>
+    <div class="grid g3">${LAB.map(labelCard).join('')}</div>
+    ${LAB.some(f=>f.uncertain)?'':''}
+  </div>
+  <div class="card">
+    <h3>Table #1</h3>
+    <p class="small">Enter the grams per serving from each label. You’ll get instant feedback on each box. The rank boxes unlock once your grams are all correct.</p>
+    <div class="scroll"><table class="t"><thead><tr><th class="l">Food</th><th>Carbohydrate<br>(g)</th><th>Lipids<br>(g)</th><th>Protein<br>(g)</th><th>PREDICTED highest amount of energy<br>(1 = highest)</th><th>CALCULATED highest amount of energy<br>(1 = highest)</th></tr></thead><tbody>
+    ${LAB.map(f=>{const p=S.pred[f.id]; const cell=(k)=>{const ok=S.predOK[f.id+k];return `<td><input type="text" inputmode="decimal" data-in="p|${f.id}|${k}" value="${esc(p[k])}" class="${ok?'good':''}" ${L?'disabled':''} aria-label="${esc(f.name)} ${k}"><span class="mark ${ok?'ok':''}" id="m-${f.id}-${k}">${ok?'✓':''}</span></td>`};
+      const ar=S.res.done?actualRanks()[f.id]:'—';
+      return `<tr><td class="l">${f.emoji} ${esc(f.name)}</td>${cell('carb')}${cell('lipid')}${cell('protein')}
+      <td><select data-in="r|${f.id}" ${(allOK&&!L)?'':'disabled'} aria-label="${esc(f.name)} predicted rank"><option value="">–</option>${LAB.map((_,i)=>`<option ${String(p.rank)===String(i+1)?'selected':''}>${i+1}</option>`).join('')}</select></td>
+      <td>${ar}</td></tr>`}).join('')}
+    </tbody></table></div>
+    <div id="predMsg"></div>
+    <div class="row">
+      <button class="btn alt" data-act="predHint" ${allOK?'':'disabled'}>Give me a hint</button>
+      <button class="btn alt" data-act="predCheck" id="btnPredCheck" disabled>Check my reasoning</button>
+      <button class="btn go" data-act="lockPred" id="btnLock" disabled ${L?'style="display:none"':''}>Lock in my prediction</button>
+      ${L?`<button class="btn go" data-act="nav" data-arg="safety">Continue to safety</button>`:''}
+    </div>
+    <div id="predHints">${S.hintN?PRED_HINTS.slice(0,S.hintN).map((h,i)=>`<div class="msg hint"><b>Hint ${i+1}:</b> ${h}${i===2?helperShares():''}</div>`).join(''):''}</div>
+    <div id="predFB">${S.predFB||''}</div>
+  </div>`;
+}
+function helperShares(){
+  return '<div class="scroll"><table class="t" style="margin-top:6px"><tr><th class="l">Food</th><th>Lipid g ÷ serving g</th></tr>'+
+    [...LAB].sort((a,b)=>fatShare(b)-fatShare(a)).map(f=>`<tr><td class="l">${esc(f.name)}</td><td>${fmt(fatShare(f),2)}</td></tr>`).join('')+'</table></div>'; }
+function predRanksValid(){
+  const r=LAB.map(f=>S.pred[f.id].rank); if(r.some(x=>x==='')) return 'Pick a rank for every food.';
+  const set=new Set(r); if(set.size!==r.length) return 'Each rank (1–'+LAB.length+') can only be used once.'; return ''; }
+function updatePredUI(){
+  const allOK=LAB.every(f=>['carb','lipid','protein'].every(k=>S.predOK[f.id+k]));
+  document.querySelectorAll('select[data-in^="r|"]').forEach(s=>s.disabled=!(allOK&&!S.predLocked));
+  const hb=document.querySelector('[data-act="predHint"]'); if(hb) hb.disabled=!allOK;
+  const msg=$('#predMsg'); const err=allOK?predRanksValid():'';
+  const valid=allOK&&!err;
+  if(msg) msg.innerHTML=!allOK?'':(err&&!S.predLocked?`<div class="msg info">${err}</div>`:'');
+  const c=$('#btnPredCheck'), l=$('#btnLock'); if(c) c.disabled=!valid; if(l) l.disabled=!valid;
+}
+function validatePredCell(el){
+  const [,fid,k]=el.dataset.in.split('|'); const f=foodById(fid);
+  const exp={carb:f.carb,lipid:f.fat,protein:f.protein}[k];
+  S.pred[fid][k]=el.value.trim();
+  const m=$('#m-'+fid+'-'+k); const v=el.value.trim()===''?NaN:Number(el.value.replace(',','.'));
+  const ok=!isNaN(v)&&Math.abs(v-exp)<1e-9;
+  S.predOK[fid+k]=ok; el.classList.toggle('good',ok); el.classList.toggle('badv',!ok&&!isNaN(v));
+  const hints={carb:'Use the “Total Carbohydrate” line, in grams (g).',lipid:'Lipids are listed as “Total Fat”. Use grams, not % Daily Value.',protein:'Use the “Protein” line, in grams (g).'};
+  m.className='mark'+(ok?' ok':''); m.textContent=ok?'✓':(isNaN(v)?'Enter a number':'Not quite. '+hints[k]);
+  updatePredUI();
+}
+function predFeedback(){
+  const rk=Object.fromEntries(LAB.map(f=>[f.id,+S.pred[f.id].rank]));
+  const fs=rankMap(LAB,fatShare), cs=rankMap(LAB,f=>f.cal);
+  const ids=LAB.map(f=>f.id);
+  const rho_f=spearman(ids.map(i=>rk[i]),ids.map(i=>fs[i])), rho_c=spearman(ids.map(i=>rk[i]),ids.map(i=>cs[i]));
+  const top=LAB.find(f=>rk[f.id]===1);
+  let out='';
+  if(fs[top.id]<=3) out+=`<div class="msg ok">✓ Your #1 pick, <b>${esc(top.name)}</b>, has ${top.fat} g of lipid in a ${top.g} g serving, one of the highest lipid shares of the group. That matches the idea that lipids pack in the most C–H bonds.</div>`;
+  else out+=`<div class="msg hint">Your #1 pick, <b>${esc(top.name)}</b>, has only ${top.fat} g of lipid in a ${top.g} g serving. Which biomolecule has the most C–H bonds, and which foods have the most of it per gram? Consider revisiting your ranking.</div>`;
+  if(rho_c>.9&&rho_f<.75) out+=`<div class="msg hint">Your ranking follows the <i>calories per serving</i> almost exactly. Serving sizes are not all the same, so total calories can mislead. Try comparing the biomolecules <i>per gram</i>.</div>`;
+  else if(rho_f>=.75) out+=`<div class="msg ok">✓ Your whole ranking lines up well with the foods’ lipid content per gram of serving.</div>`;
+  else out+=`<div class="msg info">Your ranking only partly follows lipid content per gram. That is allowed. A prediction is a testable idea. Just be ready to explain your reasoning after the lab.</div>`;
+  return out;
+}
+
+/* =====================  3. SAFETY  ===================== */
+const SAFE_Q=[
+ {q:'Your lab partner is hungry and the pretzel sample looks tasty. What do you do?',o:['Eat one. It is just a snack.','Do not eat any of the food. These are lab materials.','Eat it only after it has been burned.'],a:1,why:'DO NOT EAT ANY OF THE FOOD! Items used in a lab are never eaten.'},
+ {q:'The food just stopped burning. The pot, pin, and foil are…',o:['Fine to grab right away.','Hot. Wait until they have cooled before touching them.','Safe to touch if you blow on them first.'],a:1,why:'Be mindful of hot objects and refrain from touching them until they have cooled.'},
+ {q:'A classmate starts flicking the butane lighter around as a joke. What is the best response?',o:['Join in.','Tell your teacher. Horseplay of any kind is not tolerated.','Ignore it.'],a:1,why:'This lab needs maturity and focus. Alert your teacher immediately.'}];
+function viewSafety(){
+  const sf=S.safety; const qs=SAFE_Q.map((x,i)=>{const sel=sf.q[i];
+    return `<div class="card"><div class="q">${i+1}. ${x.q}</div>${x.o.map((o,j)=>`<button class="opt ${sel===j?(j===x.a?'right':'wrong'):''}" data-act="sq" data-arg="${i}|${j}">${o}</button>`).join('')}
+    ${sel==null?'':(sel===x.a?`<div class="msg ok">✓ ${x.why}</div>`:`<div class="msg bad">Not quite. Re-read the safety rules and try again.</div>`)}</div>`}).join('');
+  const done=sf.goggles&&sf.hair&&SAFE_Q.every((x,i)=>sf.q[i]===x.a);
+  return `<div class="card"><h2>Safety</h2>
+   <div class="msg hint"><b>DO NOT EAT ANY OF THE FOOD!</b> This lab needs maturity and focus. Horseplay of any kind will not be tolerated. You must wear safety goggles, tie long hair back, be careful not to prick yourself with the pin, and be mindful of hot objects, refraining from touching them until they have cooled.</div>
+   <div class="grid g2"><button class="toggle ${sf.goggles?'on':''}" data-act="ppe" data-arg="goggles">🥽 <span>${sf.goggles?'Safety goggles ON':'Put on safety goggles'}</span></button>
+   <button class="toggle ${sf.hair?'on':''}" data-act="ppe" data-arg="hair">💇 <span>${sf.hair?'Long hair tied back':'Tie long hair back'}</span></button></div></div>
+   ${qs}
+   <div class="card"><button class="btn go" data-act="safetyDone" ${done?'':'disabled'}>I’m ready. Go to the lab bench</button>${done?'':'<span class="small"> Complete both gear checks and answer all three questions correctly.</span>'}</div>`;
+}
+
+/* =====================  4. LAB  ===================== */
+const STAGES=['setup','water','sample','weigh1','temp1','burn','temp2','weigh2','calc','done'];
+const STAGE_INFO={setup:['Procedure 1','Set up the calorimeter'],water:['Procedure 2','Measure 50 mL of water'],sample:['Procedure 3','Mount the food sample'],
+ weigh1:['Procedure 4','Weigh the food sample set-up'],temp1:['Procedure 5','Take the initial water temperature'],burn:['Procedure 6–7','Light the food and heat the water'],
+ temp2:['Procedure 8','Record the final temperature'],weigh2:['Procedure 9','Cool down, then weigh again'],calc:['Calculating Calories','Plug-and-play math'],done:['Trial complete','Review this trial']};
+
+function startTrial(id){
+  S.cur={food:id,stage:'setup',height:12,cyl:40,poured:false,spacer:false,spacerWarn:false,size:.5,placed:false,shield:false,bs:'ready',speed:1,p:0,
+         raw:{},vals:{},ok:{},att:{},fb:{},t:{},frozen:null,delaySec:null};
+  render();
+}
+function viewLab(){
+  if(!S.cur) return labChooser();
+  const f=foodById(S.cur.food);
+  return `<div class="card" style="padding:10px 16px"><div class="row" style="justify-content:space-between"><b>${f.emoji} Testing: ${esc(f.name)}</b>
+    <button class="btn sm alt" data-act="leave">Leave this trial</button></div></div>
+    <div class="stage"><div class="bench" id="bench"></div><div><div class="card" id="stagePanel">${stagePanel()}</div><div class="card"><h3>Table #2</h3><div class="scroll" id="t2">${table2HTML()}</div></div></div></div>`;
+}
+function refreshLab(){ if(!S.cur) return; $('#bench').innerHTML=sceneSVG(); $('#stagePanel').innerHTML=stagePanel(); $('#t2').innerHTML=table2HTML(); }
+function drawScene(){ const b=$('#bench'); if(b) b.innerHTML=sceneSVG(); }
+
+function labChooser(){
+  return `<div class="card"><h2>Lab bench</h2>
+   <p class="lead">Burn each food in the calorimeter to heat 50 mL of water. You’ll record the masses and temperatures in <b>Table #2</b>, then calculate calories per gram. You may test the foods in any order. We will be burning different amounts of each food, so you’ll need to calculate how much biomass has been burned and how much the temperature of the water increased.</p>
+   <div class="chips">${LAB.map(f=>{const d=S.trials[f.id];return `<button class="chip ${d?'done':''}" data-act="startTrial" data-arg="${f.id}"><div class="em">${f.emoji}</div><b>${esc(f.name)}</b><div class="small">${d?'✓ Done. Click to redo':'Click to test'}</div></button>`}).join('')}</div>
+   ${labDone()?`<div class="msg ok">✓ All foods tested.</div><button class="btn go" data-act="nav" data-arg="results">Go to Results (Table #3)</button>`:`<p class="small">${trialList().length} of ${LAB.length} foods tested.</p>`}
+  </div>
+  <div class="card"><h3>Table #2</h3><div class="scroll">${table2HTML()}</div></div>`;
+}
+function table2HTML(){
+  const rows=LAB.map(f=>{
+    const d=(S.cur&&S.cur.food===f.id)?S.cur.vals:(S.trials[f.id]?S.trials[f.id].vals:{});
+    const c=k=>d[k]!=null?d[k]:'';
+    return `<tr><td class="l">${f.emoji} ${esc(f.name)}</td><td>${c('initMass')}</td><td>${c('finalMass')}</td><td>${c('dm')}</td><td>${c('initTemp')}</td><td>${c('finalTemp')}</td><td>${c('dT')}</td></tr>`}).join('');
+  return `<table class="t"><thead><tr><th class="l">Food Sample</th><th>Initial Mass<br>(g)</th><th>Final Mass<br>(Mass used)<br>(g)</th><th>Change in Mass<br>(g)</th><th>Initial Temperature<br>(°C)</th><th>Final Temperature<br>(°C)</th><th>Change in Temperature<br>(°C)</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ---------- Spec for each typed entry (instant feedback + hints) ---------- */
+function spec(key){
+  const T=S.cur,t=T.t,v=T.vals;
+  const S_={
+   initMass:{exp:()=>t.initMass,abs:.006,hints:['Look at the digital balance display in the picture. Copy it exactly, including both decimal places.','The balance reads in grams (g). You are weighing the whole food sample set-up: pot, foil, pin, and food together.']},
+   initTemp:{exp:()=>t.initT,abs:.06,hints:['Read the thermometer display in the water. Copy the number with its decimal.','Record it in °C.']},
+   finalTemp:{exp:()=>T.frozen,abs:.06,hints:['Copy the final temperature you recorded when the flame went out.','It should be higher than your initial temperature. Check the display in the picture.']},
+   finalMass:{exp:()=>t.finalMass,abs:.006,hints:['Read the balance display again. It should be a bit lower than your initial mass, because some food burned away.','Record to two decimal places, in grams.']},
+   dm:{exp:()=>r2(v.initMass-v.finalMass),abs:.006,
+       mist:()=>[{val:-r2(v.initMass-v.finalMass),msg:'The set-up lost mass, so report the mass used as a positive number: initial − final.'},{val:v.finalMass,msg:'That is the final mass. The change in mass is how much was lost: initial − final.'}],
+       hints:['Change in mass = initial mass − final mass. This is the mass of food that burned.',()=>`Try: ${v.initMass} − ${v.finalMass} = ?`]},
+   water:{exp:()=>WATER,abs:.01,hints:['Look at the “Need to know” list: 1 mL of water has a mass of 1 g.','You measured 50 mL of water in Procedure 2.']},
+   sh:{exp:()=>SPECIFIC_HEAT,abs:.001,hints:['Specific heat of water is the number of calories it takes to heat up 1 g (or 1 mL) of water by 1°C.','It is given in the worksheet: 1 cal/g°C.']},
+   dT:{exp:()=>r1(v.finalTemp-v.initTemp),abs:.06,
+       mist:()=>[{val:-r1(v.finalTemp-v.initTemp),msg:'Subtract in the other order: final temperature − initial temperature.'},{val:v.finalTemp,msg:'That is the final temperature. Subtract the initial temperature from it.'}],
+       hints:['Change in temperature = final temperature − initial temperature.',()=>`Try: ${v.finalTemp} − ${v.initTemp} = ?`]},
+   heat:{exp:()=>v.water*v.sh*v.dT,rel:.012,abs:.6,
+       mist:()=>[{val:v.sh*v.dT,msg:'Did you forget to multiply by the amount of water (g)?'},{val:v.water*v.sh*v.dT/1000,msg:'That looks like kilocalories. Step #1 asks for calories (cal). Converting comes later, in Step #3.'},{val:v.water+v.sh+v.dT,msg:'These are multiplied together, not added.'}],
+       hints:['Heat gained (cal) = Amount of water (g) × Specific heat of water (cal/g°C) × Change in temperature (°C).',()=>`Plug in: ${v.water} g × ${v.sh} cal/g°C × ${v.dT} °C = ?`]},
+   calg:{exp:()=>v.heat/v.dm,rel:.015,abs:.5,
+       mist:()=>[{val:v.heat/v.initMass,msg:'Use the <b>change in mass</b> (the mass of food that burned), not the initial mass of the whole set-up.'},{val:v.heat/v.finalMass,msg:'Use the <b>change in mass</b> (the mass of food that burned), not the final mass.'},{val:v.heat*v.dm,msg:'Divide the heat by the mass. Do not multiply.'},{val:v.dm/v.heat,msg:'You flipped it. Heat goes on top, mass on the bottom.'},{val:v.heat/v.dm/1000,msg:'That is already in kcal. Step #2 should still be in calories (cal). Convert in Step #3.'}],
+       hints:['Energy per gram of food (cal/g) = Heat gained by water (cal) ÷ Change in mass of the sample (g).',()=>`Plug in: ${v.heat} cal ÷ ${v.dm} g = ?`]},
+   kcalg:{exp:()=>v.calg/1000,rel:.02,abs:.004,
+       mist:()=>[{val:v.calg,msg:'Remember, kilo means 1,000 of them. 1,000 cal = 1 kcal, so divide by 1,000.'},{val:v.calg*1000,msg:'Other direction: a kcal is a <i>bigger</i> unit, so the number of kcal is smaller.'}],
+       hints:['1,000 cal = 1 kcal. Convert calories to kilocalories by dividing.',()=>`Try: ${v.calg} ÷ 1000 = ?`]}
+  }; return S_[key];
+}
+function entryRow(key,label,unit,show=true){
+  const T=S.cur; if(!show) return '';
+  const done=T.ok[key]; const raw=done?T.vals[key]:(T.raw[key]!=null?T.raw[key]:'');
+  return `<div class="erow"><label for="in-${key}">${label}</label><div class="ein"><input id="in-${key}" type="text" inputmode="decimal" autocomplete="off" data-in="lab|${key}" value="${esc(raw)}" ${done?'disabled':''}><span class="unit">${unit}</span>
+   <button class="btn sm" data-act="check" data-arg="${key}" ${done?'disabled':''}>Check</button></div>
+   <div id="fb-${key}">${done?'<div class="msg ok">✓ Correct</div>':(T.fb[key]||'')}</div></div>`;
+}
+function checkEntry(key){
+  const T=S.cur; const sp=spec(key); const raw=(T.raw[key]!=null?T.raw[key]:'').toString().replace(',','.').trim();
+  const fbEl=$('#fb-'+key); const v=raw===''?NaN:Number(raw);
+  const set=(h)=>{T.fb[key]=h; if(fbEl) fbEl.innerHTML=h;};
+  if(isNaN(v)){ set('<div class="msg info">Type a number first (numbers only, no units).</div>'); return; }
+  const exp=sp.exp(); const tol=Math.max(sp.abs||0,Math.abs(exp)*(sp.rel||0));
+  if(Math.abs(v-exp)<=tol+1e-9){ T.ok[key]=true; T.vals[key]=v; T.fb[key]=''; refreshLab(); return; }
+  T.att[key]=(T.att[key]||0)+1; const n=T.att[key];
+  let m=''; if(sp.mist){ for(const x of sp.mist()){ if(isFinite(x.val)&&Math.abs(v-x.val)<=Math.max(tol,Math.abs(x.val)*.02)){ m=x.msg; break; } } }
+  const hs=sp.hints.map(h=>typeof h==='function'?h():h);
+  const hint=hs[Math.min(Math.max(n-2,0),hs.length-1)];
+  let html='<div class="msg bad">Not quite. '+(m||'Check the value again.')+'</div>';
+  if(n>=2||!m) html+=`<div class="msg hint"><b>Hint:</b> ${hint}</div>`;
+  set(html);
+}
+
+/* ---------- Stage panels ---------- */
+function stageHead(st){ const [a,b]=STAGE_INFO[st]; const i=STAGES.indexOf(st);
+  return `<div class="row" style="justify-content:space-between"><div><span class="badge">${a}</span><b>${b}</b></div><span class="small">Step ${i+1} of ${STAGES.length}</span></div><hr style="border:0;border-top:1px solid var(--line)">`; }
+function allOK(keys){ return keys.every(k=>S.cur.ok[k]); }
+function nextBtn(label,keys,act='next'){ return `<button class="btn go" data-act="${act}" ${keys===true||allOK(keys)?'':'disabled'}>${label}</button>`; }
+
+function stagePanel(){
+  const T=S.cur,f=foodById(T.food),st=T.stage; let h=stageHead(st);
+  if(st==='setup') h+=`<p>Set the equipment up as shown in the diagram. This set-up is called a <b>calorimeter</b>. Slide the ring clamp up or down so the bottom of the soda can is the distance you choose above the base. Your lab diagram shows 12 cm.</p>
+    <div class="erow"><label for="hgt">Height of can above the base: <b id="hval">${T.height} cm</b></label><input id="hgt" type="range" min="6" max="20" step="1" value="${T.height}" data-in="live|height" style="width:100%"></div>
+    <p class="small">Think about it: what might happen if the can is too close to the flame? Too far?</p>${nextBtn('Lock the clamp',true)}`;
+  else if(st==='water') h+=`<p>Using a graduated cylinder, measure <b>50 mL</b> of water and carefully add it to the soda can.</p>
+    <div class="row"><svg viewBox="0 0 90 190" width="90" height="190" role="img" aria-label="Graduated cylinder"><rect x="25" y="10" width="40" height="170" rx="4" fill="#fff" stroke="#456" stroke-width="2"/><rect id="cylw" x="27" y="${180-T.cyl*2.3}" width="36" height="${T.cyl*2.3-2}" fill="rgba(43,143,214,.55)"/>
+      ${[0,10,20,30,40,50,60,70].map(m=>`<line x1="25" x2="${m%50===0?44:36}" y1="${180-m*2.3}" y2="${180-m*2.3}" stroke="#456"/><text x="48" y="${183-m*2.3}" font-size="9">${m}</text>`).join('')}</svg>
+      <div style="flex:1;min-width:200px"><label for="cyl">Cylinder reads: <b id="cylv">${fmt(T.cyl,1)} mL</b></label><input id="cyl" type="range" min="30" max="70" step="0.5" value="${T.cyl}" data-in="live|cyl" style="width:100%">
+      <div id="cylmsg" class="small"></div></div></div>
+    <button class="btn go" id="btnPour" data-act="pour" ${Math.abs(T.cyl-WATER)<=.5?'':'disabled'}>Pour into the soda can</button>`;
+  else if(st==='sample') h+=`<p>Place the <b>${esc(f.name)}</b> sample on the pin. Make sure the foil “spacer” is under it; this allows air to circulate. We burn different amounts of each food, so choose how big a piece to use.</p>
+    <button class="toggle ${T.spacer?'on':''}" data-act="spacer">🧱 <span>${T.spacer?'Foil spacer is under the pot':'Put the foil spacer under the pot'}</span></button>
+    <div class="erow"><label for="sz">Size of the food piece</label><input id="sz" type="range" min="0.3" max="1.0" step="0.05" value="${T.size}" data-in="live|size" style="width:100%"><div class="row small" style="justify-content:space-between"><span>small</span><span>large</span></div></div>
+    <p class="small">A bigger piece gives off more heat, but may not burn completely. A very small piece makes the masses harder to measure accurately.</p>
+    ${T.spacerWarn&&!T.spacer?'<div class="msg hint">Procedure step 3 says the foil spacer goes under the pot. You can continue without it, but you might see the effect in your data.</div>':''}
+    <button class="btn go" data-act="place">${T.spacerWarn&&!T.spacer?'Continue without the spacer anyway':'Place food on the pin'}</button>`;
+  else if(st==='weigh1') h+=`<p>Using the balance, measure the initial mass in grams (g) of the pot, foil, pin, and food sample (the <i>food sample set-up</i>) and record it in the data table.</p>${entryRow('initMass','Initial mass of the food sample set-up','g')}${nextBtn('Next: initial temperature',['initMass'])}`;
+  else if(st==='temp1') h+=`<p>Take the initial temperature of the water in °C and record it in the data table.</p>${entryRow('initTemp','Initial temperature of the water','°C')}${nextBtn('Next: burn the food',['initTemp'])}`;
+  else if(st==='burn') h+=burnPanel();
+  else if(st==='temp2') h+=`<p>Immediately record the final temperature of the water.${T.delaySec!=null&&T.delaySec>0?` <span class="small">(You recorded it ${T.delaySec.toFixed(0)} s after the flame went out.)</span>`:''}</p>${entryRow('finalTemp','Final temperature of the water','°C')}${nextBtn('Next: cool down and weigh',['finalTemp'])}`;
+  else if(st==='weigh2') h+=`<p>Allow the food sample set-up to cool down, then carefully find the final mass of the entire set-up as before. Discard the food item in the trash. Then work out how much mass was used.</p>
+    ${entryRow('finalMass','Final mass of the food sample set-up (Final Mass)','g')}${entryRow('dm','Change in mass (mass of food burned)','g',T.ok.finalMass)}${nextBtn('Next: calculate calories',['finalMass','dm'])}`;
+  else if(st==='calc') h+=`<div class="formula"><b>Need to know:</b> Specific heat of water is the number of calories it takes to heat up 1 g or mL of water by 1°C, it is 1 cal/g°C · Amount of water heated in grams (1 mL = 1 g) · Change in temperature · What mass of food was used to heat the water</div>
+    ${entryRow('water','Amount of water heated','g')}${entryRow('sh','Specific heat of water','cal/g°C',T.ok.water)}${entryRow('dT','Change in temperature (final − initial)','°C',T.ok.sh)}
+    ${T.ok.dT?`<div class="formula"><b>Step #1:</b> Heat gained by water (cal) = Amount of water (g) × Specific heat of water (cal/g°C) × Change in temperature (°C)</div>`:''}${entryRow('heat','Heat gained by the water','cal',T.ok.dT)}
+    ${T.ok.heat?`<div class="formula"><b>Step #2:</b> Energy per gram of food (cal/g or just cal) = Heat gained by water (cal) ÷ Change in mass of the sample (g)</div>`:''}${entryRow('calg','Energy per gram of food','cal/g',T.ok.heat)}
+    ${T.ok.calg?`<div class="formula"><b>Step #3:</b> Convert calories (cal) to kilocalories (kcal). Remember, kilo means 1,000 of them. So, 1,000 cal = 1 kcal</div>`:''}${entryRow('kcalg','Energy per gram of food','kcal/g',T.ok.calg)}
+    ${nextBtn('Finish this trial',['water','sh','dT','heat','calg','kcalg'])}`;
+  else if(st==='done') h+=donePanel();
+  return h;
+}
+function burnPanel(){
+  const T=S.cur; const sh=`<button class="toggle ${T.shield?'on':''}" data-act="shield" ${T.bs==='burning'||T.bs==='out'?'disabled':''}>🛡️ <span>${T.shield?'Foil heat shield will surround the set-up':'Surround the set-up with a foil heat shield'}</span></button>`;
+  let body='';
+  if(T.bs==='ready') body=`<p>Place the food sample set-up to the side of the calorimeter and carefully use the butane lighter to set the food item on fire.</p>
+    <div class="msg ok small">✓ Goggles on, hair tied back (from the Safety step).</div>${sh}<p></p><button class="btn go" data-act="light">🔥 Light the food</button>`;
+  else if(T.bs==='lit') body=`<p>Once the item is burning, carefully place it under the soda can and allow it to heat the water, making sure to surround it with a foil heat shield to minimize any heat loss to the surroundings.</p>${sh}<p></p><button class="btn go" data-act="slide">Slide it under the can</button>`;
+  else if(T.bs==='burning') body=`<p><b>Burning…</b> watch the water temperature rise.</p><div class="bar" aria-label="Burn progress"><i id="prog" style="width:${Math.round(T.p*100)}%"></i></div><p></p>
+    <button class="btn alt sm" data-act="ff">Fast-forward ⏩</button>`;
+  else if(T.bs==='out') body=`<div class="msg hint"><b>The flame is out!</b> Procedure 8 says to record the final temperature <b>immediately</b>. Watch the thermometer. What is the water doing now?</div><button class="btn go" data-act="record">📝 Record the final temperature now</button>`;
+  return body;
+}
+function donePanel(){
+  const T=S.cur,f=foodById(T.food),v=T.vals; const notes=[];
+  if(T.height<10) notes.push(`The can was only ${T.height} cm above the base, so close to the flame that it can be smothered and burn with soot (incomplete burning).`);
+  else if(T.height>14) notes.push(`The can was ${T.height} cm above the base. The farther the can is from the flame, the more heat escapes to the air instead of the water.`);
+  if(!T.spacer) notes.push('No foil spacer: less air reached the food, so less of it burned.');
+  if(!T.shield) notes.push('No foil heat shield: more heat escaped to the surroundings instead of warming the water.');
+  if(T.delaySec>8) notes.push(`You recorded the final temperature ${T.delaySec.toFixed(0)} s after the flame went out, and the water had already started to cool.`);
+  const labelK=f.cal/f.g, pct=Math.round(100*v.kcalg/labelK);
+  const ok=!notes.length;
+  return `<h3>${f.emoji} ${esc(f.name)}: ${fmt(v.calg,0)} cal/g = ${fmt(v.kcalg,2)} kcal/g</h3>
+   <p>That is about <b>${pct}%</b> of the ${fmt(labelK,2)} kcal per gram you get by dividing this food’s label calories by its serving size. The rest of the energy warmed the air, the can, and the table, or stayed in unburned food.</p>
+   ${ok?'<div class="msg ok">✓ Good technique on this trial: clamp near 12 cm, foil spacer, heat shield, and prompt reading.</div>':`<div class="msg hint"><b>Things that may have affected this trial:</b><ul style="margin:4px 0 0 18px">${notes.map(n=>`<li>${n}</li>`).join('')}</ul></div>`}
+   <div class="row"><button class="btn go" data-act="finish">Save this trial and continue</button><button class="btn alt" data-act="redo">Redo with a fresh sample</button></div>`;
+}
+
+/* ---------- Scene (SVG) ---------- */
+function liveTemp(){
+  const T=S.cur; if(!T||T.t.initT==null) return null;
+  if(T.frozen!=null) return T.frozen;
+  const t=T.t; if(T.bs==='burning') return t.initT+(t.peak-t.initT)*T.p;
+  if(T.bs==='out'){ const s=(performance.now()-T.tOut)/1000; return Math.max(t.initT,t.peak-.08*s); }
+  return t.initT;
+}
+function balanceText(){
+  const T=S.cur,st=T.stage; if(st==='weigh1') return fmt(T.t.initMass,2);
+  if(st==='weigh2') return fmt(T.t.finalMass,2); return '0.00'; }
+function sceneSVG(){
+  const T=S.cur,f=foodById(T.food),si=STAGES.indexOf(T.stage);
+  const base=318,h=T.height,canB=base-h*10,canT=canB-84;
+  const placed=T.placed, burning=(T.bs==='lit'||T.bs==='burning'), burnt=(T.bs==='out'||si>STAGES.indexOf('burn'));
+  const rx=7+T.size*14, ry=5+T.size*8, fy=292-ry;
+  const water=T.poured?54:0;
+  const showTemp=T.poured&&placed; const tv=showTemp?liveTemp():null;
+  const weighing=(T.stage==='weigh1'||T.stage==='weigh2');
+  const foodColor=burnt?'#2a2420':f.color, fscale=burnt?(1-0.35):1;
+  const shieldOn=T.shield&&(T.stage==='burn'||si>STAGES.indexOf('burn'))||(T.shield&&T.stage==='burn');
+  const flameShown=(T.bs==='lit'||T.bs==='burning');
+  const slid=(T.bs==='burning'||T.bs==='out'||si>STAGES.indexOf('burn'));
+  const flameScale=.7+T.size*.8;
+  return `<svg viewBox="0 0 500 340" role="img" aria-label="Calorimeter bench scene">
+   <rect x="230" y="318" width="240" height="12" fill="#2b3a44"/><rect x="417" y="30" width="7" height="290" fill="#55636d"/>
+   <line x1="336" x2="420" y1="${canB-45}" y2="${canB-45}" stroke="#55636d" stroke-width="5"/>
+   <rect x="244" y="${canB-48}" width="92" height="7" rx="3" fill="#55636d"/>
+   <rect x="250" y="${canT}" width="80" height="84" rx="10" fill="#dde5e9" stroke="#8fa0aa" stroke-width="2"/>
+   ${water?`<rect x="252" y="${canB-water-2}" width="76" height="${water}" rx="4" fill="rgba(43,143,214,.5)"/>`:''}
+   <text x="290" y="${canT+34}" text-anchor="middle" font-size="13" fill="#51636e" font-weight="700">Soda</text>
+   ${showTemp?`<line x1="318" y1="${canT-16}" x2="318" y2="${canB-12}" stroke="#333" stroke-width="3"/><rect x="326" y="${canT-34}" width="84" height="26" rx="4" fill="#12232b"/><text id="tempDisp" x="368" y="${canT-15}" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="15" fill="#7cf5a4">${fmt(tv,1)} °C</text>`:''}
+   <line x1="238" y1="${base}" x2="238" y2="${canB}" stroke="#c2410c" stroke-width="2" stroke-dasharray="4 3"/><text x="232" y="${(base+canB)/2}" text-anchor="end" font-size="13" fill="#c2410c" font-weight="700">${h} cm</text>
+   ${placed&&!slid?'':''}
+   <g transform="translate(${slid||!placed?0:-70},0)" id="foodg" style="${weighing?'display:none':''}">
+    ${T.spacer&&(placed||T.stage==='sample')?`<rect x="266" y="314" width="48" height="4" fill="#aeb9c1"/>`:''}
+    <path d="M272 296 L308 296 L304 314 L276 314 Z" fill="#8795a0" stroke="#5a6872"/>
+    <line x1="290" y1="296" x2="290" y2="${fy+ry}" stroke="#555" stroke-width="2"/>
+    ${(placed||T.stage==='sample')?`<ellipse id="foodEl" cx="290" cy="${fy}" rx="${rx*fscale}" ry="${ry*fscale}" fill="${foodColor}" stroke="#00000044"/>`:''}
+    ${flameShown?`<g transform="translate(290,${fy-ry*fscale}) scale(${flameScale})"><g id="flame"><path d="M0,0 C-11,-12 -6,-28 0,-44 C6,-28 11,-12 0,0Z" fill="#ff7a1a"/><path d="M0,-2 C-5,-10 -3,-19 0,-27 C3,-19 5,-10 0,-2Z" fill="#ffd54a"/></g></g>`:''}
+   </g>
+   ${shieldOn?`<rect x="233" y="${canB+8}" width="115" height="${base-canB-8}" fill="rgba(160,170,180,.18)" stroke="none"/><rect x="233" y="${canB+8}" width="4" height="${base-canB-8}" fill="#9aa6af"/><rect x="344" y="${canB+8}" width="4" height="${base-canB-8}" fill="#9aa6af"/>`:''}
+   <g><rect x="18" y="258" width="140" height="62" rx="6" fill="#cfd8dd" stroke="#91a2ac"/><rect x="30" y="268" width="116" height="30" rx="4" fill="#12232b"/>
+    <text id="balDisp" x="140" y="291" text-anchor="end" font-family="ui-monospace,Menlo,monospace" font-size="21" fill="#7cf5a4">${balanceText()} g</text>
+    <text x="88" y="313" text-anchor="middle" font-size="11" fill="#455a66">digital balance</text>
+    ${weighing?`<path d="M62 258 L98 258 L94 240 L66 240 Z" fill="#8795a0" stroke="#5a6872"/><ellipse cx="80" cy="${240-ry*.6}" rx="${rx*.6}" ry="${ry*.6}" fill="${T.stage==='weigh2'?'#2a2420':f.color}"/>`:''}</g>
+   <text x="12" y="20" font-size="13" fill="#455a66">Pot, foil, pin and food sample = the “food sample set-up”</text>
+  </svg>`;
+}
+function updateLive(){
+  const T=S.cur; if(!T) return; const tv=liveTemp();
+  const td=$('#tempDisp'); if(td&&tv!=null) td.textContent=fmt(tv,1)+' °C';
+  const pr=$('#prog'); if(pr) pr.style.width=Math.round(T.p*100)+'%';
+  const fe=$('#foodEl'); if(fe&&T.bs==='burning'){ const f=foodById(T.food); fe.setAttribute('rx',(7+T.size*14)*(1-.35*T.p)); fe.setAttribute('ry',(5+T.size*8)*(1-.35*T.p)); fe.setAttribute('fill',T.p>.85?'#2a2420':f.color); }
+}
+let TICK=null,LASTT=0;
+function startTick(){ stopTick(); LASTT=performance.now(); TICK=setInterval(tick,70); }
+function stopTick(){ if(TICK){clearInterval(TICK);TICK=null;} }
+function tick(){
+  const T=S.cur; if(!T||S.step!=='lab'){stopTick();return;}
+  const now=performance.now(), dt=now-LASTT; LASTT=now;
+  if(T.bs==='burning'){ T.p=Math.min(1,T.p+dt/T.dur*T.speed); if(T.p>=1){ T.bs='out'; T.tOut=now; refreshLab(); return; } }
+  updateLive();
+}
+
+/* =====================  5. RESULTS  ===================== */
+function viewResults(){
+  const rows=trialList(); const ar=actualRanks(); const maxK=Math.max(...rows.map(f=>S.trials[f.id].vals.kcalg),0.1);
+  const maxL=Math.max(...rows.map(f=>f.cal/f.g),0.1);
+  const done=S.res.done;
+  const matches=rows.filter(f=>+S.pred[f.id].rank===ar[f.id]).length;
+  return `<div class="card"><h2>Results</h2>
+   <p class="lead">Your calculated values from the lab are in <b>Table #3</b>. Rank the foods by energy per gram, with 1 being the highest, to see whether your predictions were correct.</p>
+   <div class="scroll"><table class="t"><thead><tr><th class="l">Food Sample</th><th>Energy in calories per gram<br>cal/g</th><th>Energy in kilocalories per gram<br>kcal/g</th><th>Predicted Rank</th><th>Actual Rank</th></tr></thead><tbody>
+   ${rows.map(f=>{const v=S.trials[f.id].vals; const sel=S.res.rank[f.id]||''; const good=S.res.ok&&S.res.ok[f.id];
+     return `<tr><td class="l">${f.emoji} ${esc(f.name)}</td><td>${fmt(v.calg,0)}</td><td>${fmt(v.kcalg,2)}</td><td>${esc(S.pred[f.id].rank)}</td>
+     <td><select data-in="res|${f.id}" class="${good?'good':''}" ${done?'disabled':''} aria-label="${esc(f.name)} actual rank"><option value="">–</option>${rows.map((_,i)=>`<option ${String(sel)===String(i+1)?'selected':''}>${i+1}</option>`).join('')}</select><span class="mark ${good?'ok':''}" id="rm-${f.id}">${good?'✓':''}</span></td></tr>`}).join('')}
+   </tbody></table></div>
+   <div id="resMsg">${done?`<div class="msg ok">✓ Ranks are correct. Your prediction matched the actual rank for <b>${matches} of ${rows.length}</b> foods.</div>`:'<div class="msg info">Pick the actual rank for each food. You’ll get feedback on each one.</div>'}</div>
+  </div>
+  ${done?`<div class="card"><h3>Energy per gram, from your data</h3>
+   <div class="bars">${[...rows].sort((a,b)=>S.trials[b.id].vals.kcalg-S.trials[a.id].vals.kcalg).map(f=>`<div>${f.emoji} ${esc(f.name)}</div><div class="bar"><i style="width:${S.trials[f.id].vals.kcalg/maxK*100}%"></i></div><div><b>${fmt(S.trials[f.id].vals.kcalg,2)}</b> kcal/g</div>`).join('')}</div></div>
+  <div class="card"><h3>How did your technique compare?</h3>
+   <p class="small">Use this as evidence when you answer Question 4.</p>
+   <div class="scroll"><table class="t"><thead><tr><th class="l">Food</th><th>Can height</th><th>Foil spacer</th><th>Heat shield</th><th>Waited after flame out</th><th>Mass burned (g)</th></tr></thead><tbody>
+   ${rows.map(f=>{const o=S.trials[f.id].opts;return `<tr><td class="l">${f.emoji} ${esc(f.name)}</td><td>${o.height} cm</td><td>${o.spacer?'yes':'no'}</td><td>${o.shield?'yes':'no'}</td><td>${o.delay!=null?o.delay.toFixed(0)+' s':'–'}</td><td>${S.trials[f.id].vals.dm}</td></tr>`}).join('')}</tbody></table></div></div>
+  <div class="card"><h3>Compare with the nutrition label</h3>
+   <p>Gray bars show the energy per gram you get from each label (calories ÷ serving size in grams). Orange bars show what your calorimeter measured. What do you notice about the <i>size</i> of the two bars, and about the <i>order</i>?</p>
+   <div class="bars">${[...rows].sort((a,b)=>S.trials[b.id].vals.kcalg-S.trials[a.id].vals.kcalg).map(f=>{const L=f.cal/f.g; const m=S.trials[f.id].vals.kcalg; return `<div>${f.emoji} ${esc(f.name)}</div><div><div class="bar"><i style="width:${m/maxL*100}%"></i></div><div class="bar lab" style="margin-top:3px"><i style="width:${L/maxL*100}%"></i></div></div><div class="small">${fmt(m,2)} measured<br>${fmt(L,2)} label</div>`}).join('')}</div></div>
+  <div class="card"><button class="btn go" data-act="nav" data-arg="analysis">Continue to Analysis &amp; Conclusions</button></div>`:''}`;
+}
+function checkResRank(fid,val){
+  const ar=actualRanks(); S.res.rank[fid]=val; S.res.ok=S.res.ok||{};
+  const ok=+val===ar[fid]; S.res.ok[fid]=ok;
+  const rows=trialList();
+  const sel=document.querySelector(`select[data-in="res|${fid}"]`); const mk=$('#rm-'+fid);
+  if(sel) sel.classList.toggle('good',ok);
+  if(mk){ mk.className='mark'+(ok?' ok':''); mk.textContent=ok?'✓':(val===''?'':'Not quite. Rank 1 is the highest kcal/g in your Table #3. Compare the kcal/g column.'); }
+  if(rows.every(f=>S.res.ok[f.id])){ S.res.done=true; render(); }
+}
+
+/* =====================  6. ANALYSIS & CONCLUSIONS  ===================== */
+const QTXT={
+ claim:'Please write a claim statement to address the following question: Which of the foods caused the biggest change in the temperature of the water per gram of food?',
+ q1:'Why do you think the food in your claim above caused the biggest change in temperature? (Hint: Talk about the biomolecules it contained.)',
+ q2:'We discussed at the beginning of this lab that a certain type of bond contains the most energy. What is this type of bond and which biomolecule has the highest numbers of this bond?',
+ q3:'Did the food that contained the most energy have the highest or a very high percentage of the biomolecule you named in Q2?',
+ q4:'Sometimes the results we get are unexpected or don’t match what the scientific theory predicts. This is often due to limitations in the experimental procedure or because of issues with the experiment itself. What are some things that didn’t go as planned or any challenges you ran into? What are some ways that you could have solved these problems or improved on the design of the lab?'};
+function topFood(){ const r=resultsSorted(); return r.length?r[0]:null; }
+function lipidRank(f){ return rankMap(LAB,fatShare)[f.id]; }
+function viewAnalysis(){
+  const r=resultsSorted(); const top=r[0];
+  const ev=`<div class="card"><h3>Your evidence</h3><div class="scroll"><table class="t"><thead><tr><th class="l">Food</th><th>kcal/g (measured)</th><th>Lipid (g) per serving</th><th>Serving (g)</th><th>Lipid share of serving</th></tr></thead><tbody>
+   ${r.map(x=>`<tr><td class="l">${x.f.emoji} ${esc(x.f.name)}</td><td>${fmt(x.kcalg,2)}</td><td>${x.f.fat}</td><td>${x.f.g}</td><td>${Math.round(fatShare(x.f)*100)}%</td></tr>`).join('')}</tbody></table></div></div>`;
+  const ta=(k,rows)=>`<textarea class="ans" id="ans-${k}" data-in="ans|${k}" aria-label="${k}" ${rows?`style="min-height:${rows}px"`:''}>${esc(S.ans[k])}</textarea>`;
+  const chk=(k)=>`<div class="row"><button class="btn sm alt" data-act="chkAns" data-arg="${k}">Check my thinking</button></div><div id="afb-${k}"></div>`;
+  return `<div class="card"><h2>#7 Analysis &amp; Conclusions</h2><p class="small">Write in your own words. “Check my thinking” gives hints about what to include. It does not grade you, and it does not write anything for you.</p></div>${ev}
+  <div class="card"><h3>Claim</h3><p class="q">${QTXT.claim}</p>${ta('claim',80)}${chk('claim')}</div>
+  <div class="card"><h3>1.</h3><p class="q">${QTXT.q1}</p>${ta('q1')}${chk('q1')}</div>
+  <div class="card"><h3>2.</h3><p class="q">${QTXT.q2}</p>${ta('q2',90)}${chk('q2')}</div>
+  <div class="card"><h3>3.</h3><p class="q">${QTXT.q3}</p>
+    <div class="row" role="radiogroup" aria-label="Yes or no"><button class="btn sm ${S.ans.q3c==='Yes'?'':'alt'}" data-act="q3c" data-arg="Yes">Yes</button><button class="btn sm ${S.ans.q3c==='No'?'':'alt'}" data-act="q3c" data-arg="No">No</button></div>
+    <p class="small">Explain using numbers from your evidence table.</p>${ta('q3',90)}${chk('q3')}</div>
+  <div class="card"><h3>4.</h3><p class="q">${QTXT.q4}</p>${ta('q4',140)}${chk('q4')}</div>
+  <div class="card"><button class="btn go" data-act="nav" data-arg="submit">Continue to Submit</button></div>`;
+}
+const has=(s,re)=>re.test(s.toLowerCase());
+function chkAns(k){
+  const t=S.ans[k]||''; const top=topFood(); const L=[]; const out=$('#afb-'+k);
+  const item=(ok,yes,no)=>L.push(`<div class="msg ${ok?'ok':'hint'}">${ok?'✓ '+yes:no}</div>`);
+  if(t.trim().length<15){ out.innerHTML='<div class="msg info">Start writing, then check again.</div>'; return; }
+  if(k==='claim'){
+    const names={cheezit:/cheez/,pretzel:/pretzel/,cheetos:/chee?to|cheeto/,popcorn:/popcorn|pop corn/,pringles:/pringle/,doritos:/dorito/,meat:/meat|stick|jerky|beef/,fruit:/fruit/};
+    const said=LAB.filter(f=>names[f.id]&&names[f.id].test(t.toLowerCase()));
+    item(said.length>0,'You named a food.','Name the food you are claiming (for example, “The ____ caused…”).');
+    if(said.length) item(said.some(f=>f.id===top.f.id),'The food you named matches your data.','Look at the kcal/g column in your Table #3. Which food has the highest value? Make sure that’s the one in your claim.');
+    item(/\d/.test(t),'You included a number from your data.','Add a number from your data (cal/g or kcal/g) to back up your claim.');
+  } else if(k==='q1'){
+    item(has(t,/lipid|fat|oil/),'You named a biomolecule.','Which biomolecule(s) did this food contain a lot of? Check the label.');
+    item(has(t,/carbon|hydrogen|c-h|c–h|bond/),'You connected it to carbon-hydrogen bonds.','Explain why that biomolecule releases energy. Think about bonds.');
+    item(has(t,/\d|percent|%|gram|more|most|highest/),'You compared amounts.','Compare amounts (grams or percent of the food) with the other foods.');
+  } else if(k==='q2'){
+    item(has(t,/carbon/)&&has(t,/hydrogen|c-h|c–h|c—h/),'You named the bond type.','The opening paragraph tells you which bond stores the most energy. Name it.');
+    item(has(t,/lipid|fat/),'You named a biomolecule.','Which biomolecule has the highest number of those bonds? Look at the picture of the C–H bonds on the Overview page.');
+  } else if(k==='q3'){
+    const yes=lipidRank(top.f)<=3; 
+    item(!!S.ans.q3c,'You picked Yes or No.','Pick Yes or No above.');
+    if(S.ans.q3c) item((S.ans.q3c==='Yes')===yes,'Your yes/no matches your evidence table.','Compare the food with the highest kcal/g to the “Lipid share of serving” column in your evidence table. Is it at or near the top?');
+    item(/\d|%/.test(t),'You used numbers.','Use numbers from your evidence table (grams of lipid, serving size, or percent).');
+  } else if(k==='q4'){
+    const th={'heat escaping to the surroundings':/heat|escape|lost|surround|shield|air|wind|draft|insulat/,'food not burning completely':/incomplete|unburn|soot|smoke|went out|not burn|all burn|left over|residue|ash|char/,
+      'measuring mass':/balance|scale|mass|weigh|crumb|piece|small/,'measuring temperature':/thermometer|stir|temperature|reading|delay|time|record/,'the water':/water|ml|volume|measure the water/,'differences between foods':/moisture|size|shape|different amount|same amount|salt|spacer|height|distance|clamp/};
+    const found=Object.keys(th).filter(x=>th[x].test(t.toLowerCase()));
+    item(found.length>=2,'You described more than one thing that didn’t go as planned.','Describe at least two things that didn’t go as planned. Look at the “How did your technique compare?” table for ideas.');
+    item(has(t,/could|would|should|instead|improve|next time|better|fix|solve|use a|add/),'You suggested ways to improve.','Say how you could fix each problem or improve the design.');
+    if(found.length) L.push(`<div class="msg info">I noticed you wrote about: ${found.join(', ')}.</div>`);
+  }
+  out.innerHTML=L.join('');
+}
+
+/* =====================  7. SUBMIT  ===================== */
+function answersText(){
+  const a=S.ans;
+  return `Name: ${S.name}   Hour: ${S.hour}\n#7 ANALYSIS & CONCLUSIONS\n\nClaim:\n${a.claim}\n\n1. ${a.q1}\n\n2. ${a.q2}\n\n3. ${a.q3c?a.q3c+'. ':''}${a.q3}\n\n4. ${a.q4}\n`; }
+function dataText(){
+  let s='TABLE #1\nFood | Carbohydrate (g) | Lipids (g) | Protein (g) | Predicted rank | Calculated rank\n';
+  const ar=S.res.done?actualRanks():{};
+  LAB.forEach(f=>{const p=S.pred[f.id]; s+=`${f.name} | ${p.carb} | ${p.lipid} | ${p.protein} | ${p.rank} | ${ar[f.id]||''}\n`;});
+  s+='\nTABLE #2\nFood | Initial mass (g) | Final mass (g) | Change in mass (g) | Initial temp (°C) | Final temp (°C) | Change in temp (°C)\n';
+  LAB.forEach(f=>{const v=measured(f)||{}; s+=`${f.name} | ${v.initMass??''} | ${v.finalMass??''} | ${v.dm??''} | ${v.initTemp??''} | ${v.finalTemp??''} | ${v.dT??''}\n`;});
+  s+='\nTABLE #3\nFood | cal/g | kcal/g | Predicted rank | Actual rank\n';
+  LAB.forEach(f=>{const v=measured(f)||{}; s+=`${f.name} | ${v.calg!=null?Math.round(v.calg):''} | ${v.kcalg!=null?fmt(v.kcalg,2):''} | ${S.pred[f.id].rank} | ${ar[f.id]||''}\n`;});
+  return s; }
+function viewSubmit(){
+  const a=S.ans; const miss=[['claim','Claim'],['q1','Question 1'],['q2','Question 2'],['q3','Question 3'],['q4','Question 4']].filter(([k])=>!(a[k]||'').trim()).map(x=>x[1]);
+  return `<div class="card"><h2>Submit</h2>
+   <p class="lead">Each student submits their own individual responses. Type or paste your complete answers to all questions in the <b>Analysis and Conclusions</b> section into the text box in Canvas.</p>
+   ${miss.length?`<div class="msg hint">Not answered yet: ${miss.join(', ')}. <button class="btn sm alt" data-act="nav" data-arg="analysis">Go back</button></div>`:'<div class="msg ok">✓ All five responses have text.</div>'}
+   ${(S.name.trim()&&S.hour.trim())?'':'<div class="msg hint">Add your name and hour at the top of the page first.</div>'}
+   <div class="row"><button class="btn go" data-act="copyAns">Copy my answers for Canvas</button><button class="btn alt" data-act="copyAll">Copy answers + data tables</button><button class="btn alt" data-act="print">Print / Save as PDF</button></div>
+   <div id="copyMsg"></div>
+   <h3>Preview</h3><pre style="white-space:pre-wrap;background:#f5f8f9;padding:12px;border-radius:8px;border:1px solid var(--line)">${esc(answersText())}</pre></div>`;
+}
+function buildReport(){
+  const ar=S.res.done?actualRanks():{}; const a=S.ans;
+  const t1=`<table><tr><th>Food</th><th>Carbohydrate (g)</th><th>Lipids (g)</th><th>Protein (g)</th><th>PREDICTED</th><th>CALCULATED</th></tr>${LAB.map(f=>{const p=S.pred[f.id];return `<tr><td>${esc(f.name)}</td><td>${esc(p.carb)}</td><td>${esc(p.lipid)}</td><td>${esc(p.protein)}</td><td>${esc(p.rank)}</td><td>${ar[f.id]||''}</td></tr>`}).join('')}</table>`;
+  const t2=`<table><tr><th>Food Sample</th><th>Initial Mass (g)</th><th>Final Mass (g)</th><th>Change in Mass (g)</th><th>Initial Temp (°C)</th><th>Final Temp (°C)</th><th>Change in Temp (°C)</th></tr>${LAB.map(f=>{const v=measured(f)||{};return `<tr><td>${esc(f.name)}</td><td>${v.initMass??''}</td><td>${v.finalMass??''}</td><td>${v.dm??''}</td><td>${v.initTemp??''}</td><td>${v.finalTemp??''}</td><td>${v.dT??''}</td></tr>`}).join('')}</table>`;
+  const t3=`<table><tr><th>Food Sample</th><th>cal/g</th><th>kcal/g</th><th>Predicted Rank</th><th>Actual Rank</th></tr>${LAB.map(f=>{const v=measured(f)||{};return `<tr><td>${esc(f.name)}</td><td>${v.calg!=null?Math.round(v.calg):''}</td><td>${v.kcalg!=null?fmt(v.kcalg,2):''}</td><td>${esc(S.pred[f.id].rank)}</td><td>${ar[f.id]||''}</td></tr>`}).join('')}</table>`;
+  const box=(l,t)=>`<p><b>${l}</b></p><div class="ansbox">${esc(t)}</div>`;
+  return `<h2 style="font-size:17pt">#7 How Can We Measure Energy in Food?</h2><p>Name: ${esc(S.name)} &nbsp;&nbsp; Hour: ${esc(S.hour)}</p>
+   <h2>Table #1</h2>${t1}<h2>Table #2</h2>${t2}<h2>Table #3</h2>${t3}<h2>#7 Analysis &amp; Conclusions</h2>
+   ${box('Claim',a.claim)}${box('1. '+QTXT.q1,a.q1)}${box('2. '+QTXT.q2,a.q2)}${box('3. '+QTXT.q3,(a.q3c?a.q3c+'. ':'')+a.q3)}${box('4. '+QTXT.q4,a.q4)}`;
+}
+function copyText(txt){
+  const done=()=>{const m=$('#copyMsg'); if(m) m.innerHTML='<div class="msg ok">✓ Copied. Paste it into the Canvas text box.</div>';};
+  if(navigator.clipboard&&window.isSecureContext){ navigator.clipboard.writeText(txt).then(done,()=>fallbackCopy(txt,done)); } else fallbackCopy(txt,done);
+}
+function fallbackCopy(txt,done){ const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); done();}catch(e){ const m=$('#copyMsg'); if(m) m.innerHTML='<div class="msg bad">Couldn’t copy automatically. Select the preview text below and copy it by hand.</div>'; } ta.remove(); }
+
+/* =====================  ACTIONS  ===================== */
+function advance(){ const T=S.cur; T.stage=STAGES[STAGES.indexOf(T.stage)+1]; refreshLab(); }
+function act(name,arg,el){
+  const T=S.cur;
+  switch(name){
+   case 'nav': if(unlocked(arg)) go(arg); break;
+   case 'predHint': S.hintN=Math.min(3,S.hintN+1); $('#predHints').innerHTML=PRED_HINTS.slice(0,S.hintN).map((h,i)=>`<div class="msg hint"><b>Hint ${i+1}:</b> ${h}${i===2?helperShares():''}</div>`).join(''); break;
+   case 'predCheck': $('#predFB').innerHTML=predFeedback()+'<p class="small">You can change your ranks and check again. When you are happy, lock in your prediction. After that it can’t be changed.</p>'; break;
+   case 'lockPred': if(predRanksValid()) break; S.predFB=predFeedback(); S.predLocked=true; render(); break;
+   case 'ppe': S.safety[arg]=!S.safety[arg]; render(true); break;
+   case 'sq': { const [i,j]=arg.split('|').map(Number); S.safety.q[i]=j; render(true); break; }
+   case 'safetyDone': S.safety.done=true; go('lab'); break;
+   case 'startTrial': startTrial(arg); break;
+   case 'leave': stopTick(); S.cur=null; render(); break;
+   case 'check': checkEntry(arg); break;
+   case 'next': advance(); break;
+   case 'pour': if(Math.abs(T.cyl-WATER)<=.5){ T.poured=true; T.stage='sample'; refreshLab(); } break;
+   case 'spacer': T.spacer=!T.spacer; refreshLab(); break;
+   case 'place':
+     if(!T.spacer&&!T.spacerWarn){ T.spacerWarn=true; refreshLab(); break; }
+     T.t.initMass=r2(BASE_MASS+T.size); T.t.initT=r1(21.4+rnd()*1.4); T.placed=true; T.stage='weigh1'; refreshLab(); break;
+   case 'shield': T.shield=!T.shield; refreshLab(); break;
+   case 'light': T.bs='lit'; refreshLab(); break;
+   case 'slide': {
+     const f=foodById(T.food); const jit=.985+rnd()*.03;
+     const m=runModel(f,{height:T.height,spacer:T.spacer,shield:T.shield,size:T.size},jit);
+     T.t.peak=r1(T.t.initT+m.dT); T.t.finalMass=m.finalMass; T.bs='burning'; T.p=0; T.dur=3500+T.size*5000; T.speed=1;
+     refreshLab(); startTick(); break; }
+   case 'ff': T.speed=5; break;
+   case 'record': T.delaySec=Math.max(0,(performance.now()-T.tOut)/1000); T.frozen=r1(liveTemp()); stopTick(); T.stage='temp2'; refreshLab(); break;
+   case 'finish':
+     S.trials[T.food]={vals:{...T.vals},opts:{height:T.height,spacer:T.spacer,shield:T.shield,size:T.size,delay:T.delaySec}};
+     S.cur=null; S.res={rank:{},done:false,ok:{}}; render(); break;
+   case 'redo': startTrial(T.food); break;
+   case 'chkAns': chkAns(arg); break;
+   case 'q3c': S.ans.q3c=arg; render(true); break;
+   case 'copyAns': copyText(answersText()); break;
+   case 'copyAll': copyText(answersText()+'\n'+dataText()); break;
+   case 'print': $('#report').innerHTML=buildReport(); window.print(); break;
+   case 'save': { const d=JSON.parse(JSON.stringify(S)); d.cur=null; const b=new Blob([JSON.stringify({app:'energy-in-food-lab',v:1,state:d})],{type:'application/json'});
+     const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='energy-in-food-lab-progress.json'; document.body.appendChild(a); a.click(); a.remove(); break; }
+   case 'load': $('#loadfile').click(); break;
+   default: if(typeof teacherAct==='function') teacherAct(name,arg);
+  }
+}
+function onInput(el){
+  const p=el.dataset.in.split('|'),T=S.cur;
+  if(p[0]==='meta'){ S[p[1]]=el.value; }
+  else if(p[0]==='p'){ S.pred[p[1]][p[2]]=el.value; }
+  else if(p[0]==='lab'){ T.raw[p[1]]=el.value; }
+  else if(p[0]==='ans'){ S.ans[p[1]]=el.value; }
+  else if(p[0]==='live'){
+    const v=+el.value;
+    if(p[1]==='height'){ T.height=v; $('#hval').textContent=v+' cm'; drawScene(); }
+    else if(p[1]==='size'){ T.size=v; drawScene(); }
+    else if(p[1]==='cyl'){ T.cyl=v; $('#cylv').textContent=fmt(v,1)+' mL'; const r=$('#cylw'); r.setAttribute('y',180-v*2.3); r.setAttribute('height',v*2.3-2);
+      $('#btnPour').disabled=!(Math.abs(v-WATER)<=.5); $('#cylmsg').textContent=v>WATER+.5?'Too much water. The procedure needs 50 mL.':(v<WATER-.5?'Not enough water yet.':'That’s 50 mL. Pour it in.'); }
+  }
+}
+function onChange(el){
+  const p=el.dataset.in.split('|');
+  if(p[0]==='p') validatePredCell(el);
+  else if(p[0]==='r'){ S.pred[p[1]].rank=el.value; updatePredUI(); }
+  else if(p[0]==='res') checkResRank(p[1],el.value);
+}
+document.addEventListener('click',e=>{ const el=e.target.closest('[data-act]'); if(el&&!el.disabled) act(el.dataset.act,el.dataset.arg,el); });
+document.addEventListener('input',e=>{ if(e.target.dataset&&e.target.dataset.in) onInput(e.target); });
+document.addEventListener('change',e=>{
+  if(e.target.id==='loadfile'){ const f=e.target.files[0]; if(!f) return; const rd=new FileReader();
+    rd.onload=()=>{ try{ const d=JSON.parse(rd.result); if(d.app!=='energy-in-food-lab') throw 0; S=Object.assign(newState(),d.state); S.cur=null; render(); }catch(x){ alert('That file isn’t a saved progress file from this lab.'); } }; rd.readAsText(f); e.target.value=''; return; }
+  if(e.target.dataset&&e.target.dataset.in) onChange(e.target); });
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.dataset&&e.target.dataset.in&&e.target.dataset.in.startsWith('lab|')){ e.preventDefault(); act('check',e.target.dataset.in.split('|')[1]); } });
+window.addEventListener('beforeunload',e=>{ if(S.predLocked||Object.keys(S.trials).length){ e.preventDefault(); e.returnValue=''; } });
+
+
+/* =====================  TEACHER ANSWER KEY (teacher build only)  ===================== */
+function demoTrial(f,o){
+  const jit=.985+rnd()*.03; const initMass=r2(BASE_MASS+o.size), m=runModel(f,o,jit);
+  const initT=r1(21.4+rnd()*1.4), peak=r1(initT+m.dT);
+  const v={initMass,finalMass:m.finalMass,dm:r2(initMass-m.finalMass),initTemp:initT,finalTemp:peak,dT:r1(peak-initT),water:WATER,sh:SPECIFIC_HEAT};
+  v.heat=v.water*v.sh*v.dT; v.calg=v.heat/v.dm; v.kcalg=v.calg/1000;
+  return {vals:v,opts:{...o,delay:0}};
+}
+function modelAnswers(){
+  const r=Object.keys(S.trials).length===LAB.length?resultsSorted().map(x=>({f:x.f,k:x.kcalg,c:x.calg})):[...LAB].map(f=>({f,k:idealCalPerG(f)/1000,c:idealCalPerG(f)})).sort((a,b)=>b.k-a.k);
+  const t=r[0], lr=lipidRank(t.f), lowest=r[r.length-1];
+  return {
+   claim:`The ${t.f.name} caused the biggest change in the temperature of the water per gram of food. It released about ${fmt(t.c,0)} cal/g (${fmt(t.k,2)} kcal/g), more than any other food I tested.`,
+   q1:`I think the ${t.f.name} caused the biggest temperature change because it contains a lot of lipids (${t.f.fat} g of fat in a ${t.f.g} g serving, about ${Math.round(fatShare(t.f)*100)}% of the food). Lipids have the most carbon-hydrogen bonds, and when those bonds are broken as the food burns they release a lot of energy, which heated the water.`,
+   q2:'The bond that stores the most energy is the carbon-hydrogen (C–H) bond. Lipids (fats and oils) have the highest number of C–H bonds.',
+   q3c:lr<=3?'Yes':'No',
+   q3:lr<=3?`Yes. The ${t.f.name} had ${t.f.fat} g of lipid in a ${t.f.g} g serving (${Math.round(fatShare(t.f)*100)}%), which is one of the highest lipid shares in the group. The ${lowest.f.name}, with the lowest energy per gram (${fmt(lowest.k,2)} kcal/g), had only ${lowest.f.fat} g of lipid per ${lowest.f.g} g.`:`No. The ${t.f.name} had only ${t.f.fat} g of lipid per ${t.f.g} g serving, lower than several foods. Other factors (such as heat loss or incomplete burning) may explain this.`,
+   q4:'Some of the heat from the flame escaped into the air instead of heating the water, so the energy I measured was lower than what the label suggests. A foil heat shield, putting the can closer to the flame, or an insulated container would help. Some foods did not burn completely and left unburned pieces or soot, so the mass I measured as burned may be off; I could use a piece of the same size for each food and make sure air can circulate. I also may have read the thermometer a few seconds late, after the water started cooling, and I did not stir the water, so I could measure the temperature more carefully and stir gently.'};
+}
+function renderKey(){
+  const lblRank=rankMap(LAB,f=>f.cal/f.g), fsRank=rankMap(LAB,fatShare);
+  const idRank=rankMap(LAB,f=>idealCalPerG(f));
+  const ex=[...LAB].sort((a,b)=>idealCalPerG(b)-idealCalPerG(a))[0];
+  const o=IDEAL, m=runModel(ex,o,1); const dm=r2(m.initMass-m.finalMass), dT=r1(m.dT), heat=WATER*SPECIFIC_HEAT*dT, calg=heat/dm;
+  const M=modelAnswers();
+  const sess=trialList();
+  return `<div class="modal" role="dialog" aria-label="Teacher answer key"><div class="inner">
+   <div class="row" style="justify-content:space-between"><h2>Teacher answer key</h2><div class="row"><button class="btn sm go" data-act="demo">Fill the whole lab with demo data</button><button class="btn sm alt" data-act="keyClose">Close</button></div></div>
+   <div class="msg hint">Teacher build only. In this build every step is unlocked in the top navigation. Measured values vary a little from student to student (random ±1.5% and each student’s own choices), so compare ranks and ballpark values, not exact numbers. Near-ties can swap.</div>
+
+   <h3>Table #1: label values and expected ranking</h3>
+   <div class="scroll"><table class="t"><thead><tr><th class="l">Food</th><th>Carb (g)</th><th>Lipids (g)</th><th>Protein (g)</th><th>Serving (g)</th><th>Lipid g per g of serving</th><th>Rank by lipid share</th><th>Label kcal/g</th><th>Rank by label kcal/g</th></tr></thead><tbody>
+   ${LAB.map(f=>`<tr><td class="l">${f.emoji} ${esc(f.name)}${f.uncertain?' <span class="bad">(label hard to read, verify)</span>':''}</td><td>${f.carb}</td><td>${f.fat}</td><td>${f.protein}</td><td>${f.g}</td><td>${fmt(fatShare(f),2)}</td><td>${fsRank[f.id]}</td><td>${fmt(f.cal/f.g,2)}</td><td>${lblRank[f.id]}</td></tr>`).join('')}</tbody></table></div>
+   <p class="small">Predictions are not graded right/wrong in the sim. The reasoning the worksheet wants: energy is in C–H bonds, lipids have the most, so rank foods by lipid per gram (not by calories per serving, since serving sizes vary).</p>
+
+   <h3>Table #3: expected results with good technique</h3>
+   <div class="scroll"><table class="t"><thead><tr><th class="l">Food</th><th>Expected cal/g</th><th>Expected kcal/g</th><th>Expected actual rank</th></tr></thead><tbody>
+   ${[...LAB].sort((a,b)=>idRank[a.id]-idRank[b.id]).map(f=>`<tr><td class="l">${f.emoji} ${esc(f.name)}</td><td>${fmt(idealCalPerG(f),0)}</td><td>${fmt(idealCalPerG(f)/1000,2)}</td><td>${idRank[f.id]}</td></tr>`).join('')}</tbody></table></div>
+   <p class="small">Good technique = can at 12 cm, foil spacer, heat shield, reading right after flame-out. Without the shield results drop about 38%; a can far above 14 cm loses a further ~4.5% per cm; no spacer cuts the mass that burns by 30%.</p>
+
+   <h3>Worked example (${esc(ex.name)}, 0.50 g piece, good technique)</h3>
+   <p>Initial mass ${m.initMass} g, final mass ${m.finalMass} g, change in mass = ${dm} g. Change in temperature ≈ ${dT} °C.<br>
+   Step 1: 50 g × 1 cal/g°C × ${dT} °C = ${heat.toFixed(0)} cal. Step 2: ${heat.toFixed(0)} cal ÷ ${dm} g = ${calg.toFixed(0)} cal/g. Step 3: ${calg.toFixed(0)} ÷ 1,000 = ${(calg/1000).toFixed(2)} kcal/g.</p>
+
+   <h3>Analysis &amp; Conclusions: model answers (based on ${sess.length===LAB.length?'this session’s data':'expected data'})</h3>
+   <p><b>Claim:</b> ${esc(M.claim)}</p><p><b>1.</b> ${esc(M.q1)}</p><p><b>2.</b> ${esc(M.q2)}</p><p><b>3.</b> ${esc(M.q3)}</p><p><b>4.</b> ${esc(M.q4)}</p>
+   <p class="small">Q4 full-credit ideas: heat loss to the air/can/table; incomplete burning, soot, unburned residue; food that did not stay lit; balance precision on small masses; late temperature reading; unstirred water; differences in moisture or piece size between foods; the can absorbing some heat; flame distance. Each with a plausible fix.</p>
+
+   ${sess.length?`<h3>This session’s trials</h3><div class="scroll"><table class="t"><thead><tr><th class="l">Food</th><th>Student cal/g</th><th>Student kcal/g</th><th>Can (cm)</th><th>Spacer</th><th>Shield</th><th>Delay (s)</th><th>Piece size</th></tr></thead><tbody>
+   ${sess.map(f=>{const t=S.trials[f.id];return `<tr><td class="l">${esc(f.name)}</td><td>${fmt(t.vals.calg,0)}</td><td>${fmt(t.vals.kcalg,2)}</td><td>${t.opts.height}</td><td>${t.opts.spacer?'yes':'no'}</td><td>${t.opts.shield?'yes':'no'}</td><td>${t.opts.delay!=null?t.opts.delay.toFixed(0):''}</td><td>${t.opts.size}</td></tr>`}).join('')}</tbody></table></div>`:''}
+
+   <h3>Simulation model (assumptions)</h3>
+   <ul class="small"><li>True energy density = label calories ÷ serving grams. A fraction ${ETA0} of it reaches the water with good technique, multiplied by a food factor (${LAB.map(f=>f.name+' '+f.eff).join('; ')}).</li>
+   <li>Share of the piece that burns away: ${LAB.map(f=>f.name+' '+f.burn).join('; ')}. Water 50 mL, specific heat 1 cal/g°C; heat absorbed by the can is ignored, as in the worksheet formula.</li></ul>
+  </div></div>`;
+}
+function teacherAct(name,arg){
+  if(name==='key'){ $('#keyroot').innerHTML=renderKey(); }
+  else if(name==='keyClose'){ $('#keyroot').innerHTML=''; }
+  else if(name==='demo'){
+    const fs=rankMap(LAB,fatShare);
+    LAB.forEach(f=>{ S.pred[f.id]={carb:String(f.carb),lipid:String(f.fat),protein:String(f.protein),rank:String(fs[f.id])}; ['carb','lipid','protein'].forEach(k=>S.predOK[f.id+k]=true); });
+    // break ties in the demo prediction so ranks are unique
+    const used=new Set(); LAB.slice().sort((a,b)=>fs[a.id]-fs[b.id]).forEach((f,i)=>{ S.pred[f.id].rank=String(i+1); });
+    S.predLocked=true; S.safety={goggles:true,hair:true,q:Object.fromEntries(SAFE_Q.map((x,i)=>[i,x.a])),done:true};
+    LAB.forEach(f=>{ S.trials[f.id]=demoTrial(f,IDEAL); });
+    const ar=actualRanks(); S.res={rank:ar,done:true,ok:Object.fromEntries(LAB.map(f=>[f.id,true]))};
+    S.res.rank=Object.fromEntries(Object.entries(ar).map(([k,v])=>[k,String(v)]));
+    const M=modelAnswers(); S.ans={claim:M.claim,q1:M.q1,q2:M.q2,q3c:M.q3c,q3:M.q3,q4:M.q4};
+    S.name=S.name||'Demo Student'; S.hour=S.hour||'1'; S.cur=null; $('#keyroot').innerHTML=''; go('results');
+  }
+}
+
+
+/* =====================  START  ===================== */
+render();
+</script>
+</body>
+</html>
